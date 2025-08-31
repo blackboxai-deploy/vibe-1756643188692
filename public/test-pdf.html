@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Generation Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #27ae60, #219653);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #219653, #1e8449);
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF Generation Test</h1>
+        <p>This page tests if the jsPDF library is loading correctly and can generate PDFs.</p>
+        
+        <button onclick="testLibraries()">Test Library Loading</button>
+        <button onclick="generateSimplePDF()">Generate Simple PDF</button>
+        <button onclick="generateTablePDF()">Generate Table PDF</button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + (isError ? 'error' : 'success');
+        }
+
+        function testLibraries() {
+            try {
+                if (typeof window.jspdf === 'undefined') {
+                    showStatus('❌ jsPDF library not loaded', true);
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                if (!jsPDF) {
+                    showStatus('❌ jsPDF constructor not available', true);
+                    return;
+                }
+
+                // Test if autoTable plugin is loaded
+                const testDoc = new jsPDF();
+                if (typeof testDoc.autoTable !== 'function') {
+                    showStatus('❌ autoTable plugin not loaded', true);
+                    return;
+                }
+
+                showStatus('✅ All libraries loaded successfully!');
+            } catch (error) {
+                showStatus(`❌ Error testing libraries: ${error.message}`, true);
+            }
+        }
+
+        function generateSimplePDF() {
+            try {
+                if (typeof window.jspdf === 'undefined') {
+                    showStatus('❌ jsPDF library not loaded', true);
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Add content
+                doc.setFontSize(18);
+                doc.text('Simple PDF Test', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.text('This is a test PDF generated using jsPDF.', 20, 40);
+                doc.text('Date: ' + new Date().toLocaleString(), 20, 50);
+                doc.text('Status: PDF generation working correctly!', 20, 60);
+
+                // Save the PDF
+                doc.save('simple-test.pdf');
+                
+                showStatus('✅ Simple PDF generated and downloaded successfully!');
+            } catch (error) {
+                showStatus(`❌ Error generating simple PDF: ${error.message}`, true);
+                console.error('Simple PDF error:', error);
+            }
+        }
+
+        function generateTablePDF() {
+            try {
+                if (typeof window.jspdf === 'undefined') {
+                    showStatus('❌ jsPDF library not loaded', true);
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Add header
+                doc.setFontSize(18);
+                doc.text('Table PDF Test', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.text('Generated: ' + new Date().toLocaleString(), 20, 35);
+
+                // Test data
+                const tableData = [
+                    ['UT-231-162-0001', 'John Doe', 'Present'],
+                    ['UT-231-162-0002', 'Jane Smith', 'Absent'],
+                    ['UT-231-162-0003', 'Mike Johnson', 'Present'],
+                    ['UT-231-162-0004', 'Sarah Wilson', 'Present'],
+                    ['UT-231-162-0005', 'David Brown', 'Absent']
+                ];
+
+                // Check if autoTable is available
+                if (typeof doc.autoTable !== 'function') {
+                    showStatus('❌ autoTable plugin not loaded', true);
+                    return;
+                }
+
+                // Add table
+                doc.autoTable({
+                    startY: 50,
+                    head: [['Roll No', 'Student Name', 'Status']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [52, 152, 219],
+                        textColor: 255
+                    },
+                    alternateRowStyles: {
+                        fillColor: [240, 240, 240]
+                    }
+                });
+
+                // Add summary
+                const finalY = doc.lastAutoTable.finalY + 10;
+                doc.text('Summary: 3 Present, 2 Absent out of 5 students', 20, finalY);
+
+                // Save the PDF
+                doc.save('table-test.pdf');
+                
+                showStatus('✅ Table PDF generated and downloaded successfully!');
+            } catch (error) {
+                showStatus(`❌ Error generating table PDF: ${error.message}`, true);
+                console.error('Table PDF error:', error);
+            }
+        }
+
+        // Test libraries on page load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                testLibraries();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
