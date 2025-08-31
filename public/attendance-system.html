@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BCA Department Attendance - B.N. College (Autonomous)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fixed CDN URLs for jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .college-logo {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: #2c3e50;
+            border: 2px solid #3498db;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+        }
+
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+        }
+
+        .form-title i {
+            color: #3498db;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-group label i {
+            color: #3498db;
+            font-size: 1.1rem;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+            color: #2c3e50;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .student-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+
+        .student-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            border-radius: 8px;
+        }
+
+        .student-item:hover {
+            background-color: #e9f7fe;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .student-item:last-child {
+            border-bottom: none;
+        }
+
+        .student-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .student-roll {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-family: 'Courier New', monospace;
+        }
+
+        .attendance-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .attendance-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .present-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .present-btn:hover, .present-btn.active {
+            background: #219653;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 83, 0.3);
+        }
+
+        .absent-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .absent-btn:hover, .absent-btn.active {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(192, 57, 43, 0.3);
+        }
+
+        .date-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #e9f7fe, #d6eaf8);
+            padding: 18px;
+            border-radius: 10px;
+            min-width: 130px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3498db;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            justify-content: center;
+            padding: 0 30px 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #2980b9, #2573a7);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(41, 128, 185, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #219653);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: linear-gradient(135deg, #219653, #1e8449);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(33, 150, 83, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(192, 57, 43, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #7f8c8d, #616a6b);
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #616a6b, #515a5a);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(127, 140, 141, 0.3);
+        }
+
+        .reports-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 30px 30px;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .reports-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .reports-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .reports-table th, .reports-table td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .reports-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-weight: 600;
+        }
+
+        .reports-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .reports-table tr:hover {
+            background-color: #e9f7fe;
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            gap: 10px;
+        }
+
+        .pagination-btn {
+            padding: 10px 18px;
+            border: 2px solid #3498db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #3498db;
+        }
+
+        .pagination-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .pagination-btn:hover:not(.active) {
+            background: #e9f7fe;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            animation: slideIn 0.3s;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e1e8ed;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #e74c3c;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="college-logo">BNC</div>
+            <h1>B.N. COLLEGE (AUTONOMOUS)</h1>
+            <h2>BCA Department - Student Attendance Portal</h2>
+        </header>
+
+        <div class="form-container">
+            <div class="form-section">
+                <h3 class="form-title"><i class="fas fa-cog"></i> Configuration</h3>
+                
+                <div class="form-group">
+                    <label for="semester" class="required"><i class="fas fa-graduation-cap"></i>Select Semester</label>
+                    <select id="semester">
+                        <option value="">-- Select Semester --</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option>
+                        <option value="4">Semester 4</option>
+                        <option value="5">Semester 5</option>
+                        <option value="6">Semester 6</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject" class="required"><i class="fas fa-book"></i>Select Subject</label>
+                    <select id="subject">
+                        <option value="">-- Select Subject --</option>
+                        <!-- Subjects will be populated based on semester selection -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="attendance-date" class="required"><i class="fas fa-calendar-alt"></i>Attendance Date</label>
+                    <input type="date" id="attendance-date">
+                </div>
+
+                <div class="form-group">
+                    <label for="topic"><i class="fas fa-chalkboard"></i>Today's Topic</label>
+                    <input type="text" id="topic" placeholder="Enter today's lecture topic">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="form-title"><i class="fas fa-users"></i> Student Attendance</h3>
+                
+                <div class="form-group">
+                    <label>Mark Student Attendance</label>
+                    <div class="student-list" id="student-list">
+                        <!-- Student list will be populated here -->
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="total-students">0</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="present-count">0</div>
+                        <div class="stat-label">Present</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="absent-count">0</div>
+                        <div class="stat-label">Absent</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="save-btn">
+                <i class="fas fa-save"></i> Save Attendance
+            </button>
+            <button class="btn btn-success" id="generate-pdf">
+                <div class="loading-spinner" id="pdf-spinner"></div>
+                <i class="fas fa-file-pdf" id="pdf-icon"></i> Generate PDF
+            </button>
+            <button class="btn btn-danger" id="reset-btn">
+                <i class="fas fa-redo"></i> Reset Form
+            </button>
+            <button class="btn btn-secondary" id="view-reports">
+                <i class="fas fa-history"></i> View Reports
+            </button>
+        </div>
+
+        <div class="reports-section" id="reports-section">
+            <div class="reports-header">
+                <h3 class="form-title"><i class="fas fa-file-alt"></i> Attendance Reports</h3>
+                <button class="btn btn-danger" id="close-reports">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+            
+            <table class="reports-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Semester</th>
+                        <th>Subject</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reports-table-body">
+                    <!-- Reports will be populated here -->
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="reports-pagination">
+                <!-- Pagination buttons will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Confirmation Modal -->
+    <div class="modal" id="save-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Save Attendance</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to save this attendance record?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="cancel-save">Cancel</button>
+                <button class="btn btn-success" id="confirm-save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Generation Modal -->
+    <div class="modal" id="pdf-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Generate PDF</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Your attendance report PDF is ready. Would you like to download it now?</p>
+                <div class="error-message" id="pdf-error-message"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="cancel-pdf">Cancel</button>
+                <button class="btn btn-success" id="confirm-pdf">Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="success-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Success</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="success-message">Operation completed successfully!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="ok-success">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div class="modal" id="reset-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Reset Form</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to reset the form? All unsaved data will be lost.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="cancel-reset">Cancel</button>
+                <button class="btn btn-success" id="confirm-reset">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Delete Record</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this attendance record?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="cancel-delete">Cancel</button>
+                <button class="btn btn-success" id="confirm-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if jsPDF is loaded
+        function checkLibrariesLoaded() {
+            if (typeof window.jspdf === 'undefined') {
+                console.error('jsPDF library not loaded');
+                return false;
+            }
+            return true;
+        }
+
+        // Sample data for students and subjects
+        const semesterData = {
+            '1': {
+                subjects: ['Programming Fundamentals', 'Mathematics I', 'Digital Logic', 'Communication Skills'],
+                students: [
+                    { id: 'UT-231-162-0001', name: 'Amit Sharma' },
+                    { id: 'UT-231-162-0002', name: 'Priya Patel' },
+                    { id: 'UT-231-162-0003', name: 'Rahul Kumar' },
+                    { id: 'UT-231-162-0004', name: 'Sneha Gupta' },
+                    { id: 'UT-231-162-0005', name: 'Vikram Singh' },
+                    { id: 'UT-231-162-0006', name: 'Neha Reddy' },
+                    { id: 'UT-231-162-0007', name: 'Sanjay Verma' }
+                ]
+            },
+            '2': {
+                subjects: ['Data Structures', 'Mathematics II', 'Computer Organization', 'Business Economics'],
+                students: [
+                    { id: 'UT-231-162-0101', name: 'Arun Mehta' },
+                    { id: 'UT-231-162-0102', name: 'Divya Joshi' },
+                    { id: 'UT-231-162-0103', name: 'Karan Malhotra' },
+                    { id: 'UT-231-162-0104', name: 'Neha Reddy' },
+                    { id: 'UT-231-162-0105', name: 'Sanjay Verma' },
+                    { id: 'UT-231-162-0106', name: 'Anjali Desai' },
+                    { id: 'UT-231-162-0107', name: 'Mohit Agarwal' }
+                ]
+            },
+            '3': {
+                subjects: ['Database Management', 'Operating Systems', 'Web Technologies', 'Software Engineering'],
+                students: [
+                    { id: 'UT-231-162-0201', name: 'Anjali Desai' },
+                    { id: 'UT-231-162-0202', name: 'Mohit Agarwal' },
+                    { id: 'UT-231-162-0203', name: 'Pooja Singh' },
+                    { id: 'UT-231-162-0204', name: 'Ravi Shastri' },
+                    { id: 'UT-231-162-0205', name: 'Swati Iyer' },
+                    { id: 'UT-231-162-0206', name: 'Varun Kumar' },
+                    { id: 'UT-231-162-0207', name: 'Kavita Joshi' }
+                ]
+            }
+        };
+
+        // DOM elements
+        const semesterSelect = document.getElementById('semester');
+        const subjectSelect = document.getElementById('subject');
+        const studentList = document.getElementById('student-list');
+        const totalStudentsElem = document.getElementById('total-students');
+        const presentCountElem = document.getElementById('present-count');
+        const absentCountElem = document.getElementById('absent-count');
+        const saveBtn = document.getElementById('save-btn');
+        const generatePdfBtn = document.getElementById('generate-pdf');
+        const pdfSpinner = document.getElementById('pdf-spinner');
+        const pdfIcon = document.getElementById('pdf-icon');
+        const resetBtn = document.getElementById('reset-btn');
+        const viewReportsBtn = document.getElementById('view-reports');
+        const reportsSection = document.getElementById('reports-section');
+        const closeReportsBtn = document.getElementById('close-reports');
+        const reportsTableBody = document.getElementById('reports-table-body');
+        const reportsPagination = document.getElementById('reports-pagination');
+
+        // Modal elements
+        const saveModal = document.getElementById('save-modal');
+        const pdfModal = document.getElementById('pdf-modal');
+        const successModal = document.getElementById('success-modal');
+        const resetModal = document.getElementById('reset-modal');
+        const deleteModal = document.getElementById('delete-modal');
+        const successMessage = document.getElementById('success-message');
+        const pdfErrorMessage = document.getElementById('pdf-error-message');
+
+        // Current attendance state
+        let attendanceState = {
+            semester: '',
+            subject: '',
+            date: '',
+            topic: '',
+            students: {}
+        };
+
+        // Reports data
+        let reportsData = [];
+        const REPORTS_PER_PAGE = 5;
+        let currentReportPage = 1;
+        let recordToDelete = null;
+
+        // Initialize the form
+        function initForm() {
+            // Set default date as today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendance-date').value = today;
+            attendanceState.date = today;
+
+            // Load reports from localStorage
+            loadReports();
+
+            // Check if libraries are loaded
+            if (!checkLibrariesLoaded()) {
+                generatePdfBtn.disabled = true;
+                generatePdfBtn.title = 'PDF library not loaded. Please refresh the page.';
+            }
+
+            // Add event listeners
+            semesterSelect.addEventListener('change', handleSemesterChange);
+            subjectSelect.addEventListener('change', (e) => {
+                attendanceState.subject = e.target.value;
+            });
+            document.getElementById('attendance-date').addEventListener('change', (e) => {
+                attendanceState.date = e.target.value;
+            });
+            document.getElementById('topic').addEventListener('change', (e) => {
+                attendanceState.topic = e.target.value;
+            });
+
+            saveBtn.addEventListener('click', () => showModal(saveModal));
+            generatePdfBtn.addEventListener('click', handleGeneratePDF);
+            resetBtn.addEventListener('click', () => showModal(resetModal));
+            viewReportsBtn.addEventListener('click', showReports);
+            closeReportsBtn.addEventListener('click', hideReports);
+
+            // Modal event listeners
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    hideModal(saveModal);
+                    hideModal(pdfModal);
+                    hideModal(successModal);
+                    hideModal(resetModal);
+                    hideModal(deleteModal);
+                });
+            });
+
+            document.getElementById('cancel-save').addEventListener('click', () => hideModal(saveModal));
+            document.getElementById('confirm-save').addEventListener('click', saveAttendance);
+            document.getElementById('cancel-pdf').addEventListener('click', () => hideModal(pdfModal));
+            document.getElementById('confirm-pdf').addEventListener('click', generatePDF);
+            document.getElementById('ok-success').addEventListener('click', () => hideModal(successModal));
+            document.getElementById('cancel-reset').addEventListener('click', () => hideModal(resetModal));
+            document.getElementById('confirm-reset').addEventListener('click', confirmReset);
+            document.getElementById('cancel-delete').addEventListener('click', () => hideModal(deleteModal));
+            document.getElementById('confirm-delete').addEventListener('click', confirmDelete);
+        }
+
+        // Handle semester change
+        function handleSemesterChange(e) {
+            const semester = e.target.value;
+            attendanceState.semester = semester;
+
+            // Reset subject and student list
+            subjectSelect.innerHTML = '<option value="">-- Select Subject --</option>';
+            studentList.innerHTML = '';
+            attendanceState.students = {};
+            updateStats();
+
+            if (semester && semesterData[semester]) {
+                // Populate subjects
+                semesterData[semester].subjects.forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject;
+                    option.textContent = subject;
+                    subjectSelect.appendChild(option);
+                });
+
+                // Populate students
+                semesterData[semester].students.forEach(student => {
+                    const studentItem = document.createElement('div');
+                    studentItem.className = 'student-item';
+                    
+                    // Get initials for avatar
+                    const initials = student.name.split(' ').map(n => n[0]).join('');
+                    
+                    studentItem.innerHTML = `
+                        <div class="student-avatar">${initials}</div>
+                        <div class="student-info">
+                            <div class="student-name">${student.name}</div>
+                            <div class="student-roll">${student.id}</div>
+                        </div>
+                        <div class="attendance-options">
+                            <button class="attendance-btn present-btn" data-student="${student.id}">Present</button>
+                            <button class="attendance-btn absent-btn" data-student="${student.id}">Absent</button>
+                        </div>
+                    `;
+                    studentList.appendChild(studentItem);
+
+                    // Initialize attendance state for this student
+                    attendanceState.students[student.id] = {
+                        name: student.name,
+                        present: null
+                    };
+
+                    // Add event listeners to buttons
+                    const presentBtn = studentItem.querySelector('.present-btn');
+                    const absentBtn = studentItem.querySelector('.absent-btn');
+                    
+                    presentBtn.addEventListener('click', () => {
+                        attendanceState.students[student.id].present = true;
+                        presentBtn.classList.add('active');
+                        absentBtn.classList.remove('active');
+                        updateStats();
+                    });
+                    
+                    absentBtn.addEventListener('click', () => {
+                        attendanceState.students[student.id].present = false;
+                        absentBtn.classList.add('active');
+                        presentBtn.classList.remove('active');
+                        updateStats();
+                    });
+                });
+
+                updateStats();
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = Object.keys(attendanceState.students).length;
+            const present = Object.values(attendanceState.students).filter(s => s.present === true).length;
+            const absent = Object.values(attendanceState.students).filter(s => s.present === false).length;
+
+            totalStudentsElem.textContent = total;
+            presentCountElem.textContent = present;
+            absentCountElem.textContent = absent;
+        }
+
+        // Show modal
+        function showModal(modal) {
+            // Validate form before showing save modal
+            if (modal === saveModal) {
+                if (!attendanceState.semester || !attendanceState.subject || !attendanceState.date) {
+                    showSuccessModal('Please fill all required fields (semester, subject, and date)');
+                    return;
+                }
+                
+                const presentCount = Object.values(attendanceState.students).filter(s => s.present === true).length;
+                if (presentCount === 0) {
+                    showSuccessModal('Please mark attendance for at least one student');
+                    return;
+                }
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        // Hide modal
+        function hideModal(modal) {
+            modal.style.display = 'none';
+            // Reset error messages
+            pdfErrorMessage.style.display = 'none';
+            pdfErrorMessage.textContent = '';
+        }
+
+        // Show success modal with message
+        function showSuccessModal(message) {
+            successMessage.textContent = message;
+            successModal.style.display = 'flex';
+        }
+
+        // Handle generate PDF button click
+        function handleGeneratePDF() {
+            // Validate form
+            if (!attendanceState.semester || !attendanceState.subject || !attendanceState.date) {
+                showSuccessModal('Please fill all required fields (semester, subject, and date)');
+                return;
+            }
+
+            const presentCount = Object.values(attendanceState.students).filter(s => s.present !== null).length;
+            if (presentCount === 0) {
+                showSuccessModal('Please mark attendance for at least one student');
+                return;
+            }
+
+            // Check if libraries are loaded
+            if (!checkLibrariesLoaded()) {
+                showSuccessModal('PDF library not loaded. Please refresh the page and try again.');
+                return;
+            }
+
+            showModal(pdfModal);
+        }
+
+        // Save attendance
+        function saveAttendance() {
+            hideModal(saveModal);
+            
+            // Create attendance record
+            const presentCount = Object.values(attendanceState.students).filter(s => s.present === true).length;
+            const absentCount = Object.values(attendanceState.students).filter(s => s.present === false).length;
+            
+            const attendanceRecord = {
+                ...attendanceState,
+                id: Date.now(),
+                savedAt: new Date().toISOString(),
+                presentCount,
+                absentCount
+            };
+            
+            // Save to reports
+            reportsData.unshift(attendanceRecord);
+            localStorage.setItem('attendanceReports', JSON.stringify(reportsData));
+            
+            showSuccessModal('Attendance saved successfully!');
+        }
+
+        // Generate PDF with improved error handling
+        function generatePDF() {
+            hideModal(pdfModal);
+            
+            // Show loading state
+            pdfSpinner.style.display = 'inline-block';
+            pdfIcon.style.display = 'none';
+            generatePdfBtn.disabled = true;
+            generatePdfBtn.textContent = 'Generating PDF...';
+            
+            try {
+                // Check if jsPDF is available
+                if (typeof window.jspdf === 'undefined') {
+                    throw new Error('jsPDF library not loaded');
+                }
+
+                // Use jsPDF with autoTable plugin
+                const { jsPDF } = window.jspdf;
+                
+                if (!jsPDF) {
+                    throw new Error('jsPDF constructor not available');
+                }
+                
+                const doc = new jsPDF();
+
+                // Add header
+                doc.setFontSize(18);
+                doc.setTextColor(40, 40, 40);
+                doc.text('B.N. COLLEGE (AUTONOMOUS)', 105, 15, { align: 'center' });
+                doc.setFontSize(14);
+                doc.text('BCA Department - Attendance Record', 105, 22, { align: 'center' });
+
+                // Add details
+                doc.setFontSize(12);
+                doc.text(`Semester: ${attendanceState.semester}`, 20, 35);
+                doc.text(`Subject: ${attendanceState.subject}`, 20, 42);
+                doc.text(`Date: ${attendanceState.date}`, 20, 49);
+                if (attendanceState.topic) {
+                    doc.text(`Topic: ${attendanceState.topic}`, 20, 56);
+                }
+
+                // Prepare data for the table
+                const tableData = [];
+                Object.entries(attendanceState.students).forEach(([id, student]) => {
+                    if (student.present !== null) {
+                        tableData.push([
+                            id,
+                            student.name,
+                            student.present ? 'Present' : 'Absent'
+                        ]);
+                    }
+                });
+
+                // Check if autoTable is available
+                if (typeof doc.autoTable !== 'function') {
+                    throw new Error('autoTable plugin not loaded');
+                }
+
+                // Add table
+                doc.autoTable({
+                    startY: 65,
+                    head: [['Roll No', 'Student Name', 'Status']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [52, 152, 219],
+                        textColor: 255
+                    },
+                    alternateRowStyles: {
+                        fillColor: [240, 240, 240]
+                    }
+                });
+
+                // Add statistics
+                const presentCount = Object.values(attendanceState.students).filter(s => s.present === true).length;
+                const totalCount = Object.values(attendanceState.students).filter(s => s.present !== null).length;
+                const finalY = doc.lastAutoTable.finalY + 10;
+                
+                doc.text(`Summary: ${presentCount} Present, ${totalCount - presentCount} Absent out of ${totalCount} students`, 20, finalY);
+
+                // Generate filename
+                const filename = `attendance_${attendanceState.semester}_${attendanceState.subject.replace(/\s+/g, '_')}_${attendanceState.date}.pdf`;
+                
+                // Save the PDF
+                doc.save(filename);
+                
+                showSuccessModal('PDF generated and downloaded successfully!');
+                
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                showSuccessModal(`PDF generation failed: ${error.message}. Please refresh the page and try again.`);
+            } finally {
+                // Reset button state
+                pdfSpinner.style.display = 'none';
+                pdfIcon.style.display = 'inline-block';
+                generatePdfBtn.disabled = false;
+                generatePdfBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Generate PDF';
+            }
+        }
+
+        // Load reports from localStorage
+        function loadReports() {
+            const storedReports = localStorage.getItem('attendanceReports');
+            if (storedReports) {
+                try {
+                    reportsData = JSON.parse(storedReports);
+                } catch (error) {
+                    console.error('Error loading reports:', error);
+                    reportsData = [];
+                }
+            }
+        }
+
+        // Show reports section
+        function showReports() {
+            renderReportsTable();
+            reportsSection.style.display = 'block';
+        }
+
+        // Hide reports section
+        function hideReports() {
+            reportsSection.style.display = 'none';
+        }
+
+        // Render reports table
+        function renderReportsTable() {
+            reportsTableBody.innerHTML = '';
+            
+            if (reportsData.length === 0) {
+                reportsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No attendance records found</td>
+                    </tr>
+                `;
+                reportsPagination.innerHTML = '';
+                return;
+            }
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(reportsData.length / REPORTS_PER_PAGE);
+            const startIndex = (currentReportPage - 1) * REPORTS_PER_PAGE;
+            const endIndex = Math.min(startIndex + REPORTS_PER_PAGE, reportsData.length);
+            
+            // Render reports for current page
+            for (let i = startIndex; i < endIndex; i++) {
+                const report = reportsData[i];
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${report.date}</td>
+                    <td>Semester ${report.semester}</td>
+                    <td>${report.subject}</td>
+                    <td>${report.presentCount}</td>
+                    <td>${report.absentCount}</td>
+                    <td class="action-cell">
+                        <button class="action-btn btn-primary" onclick="downloadReport(${report.id})">
+                            <i class="fas fa-download"></i> PDF
+                        </button>
+                        <button class="action-btn btn-success" onclick="editReport(${report.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="action-btn btn-danger" onclick="showDeleteModal(${report.id})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                `;
+                
+                reportsTableBody.appendChild(row);
+            }
+            
+            // Render pagination
+            renderPagination(totalPages);
+        }
+
+        // Show delete confirmation modal
+        function showDeleteModal(id) {
+            recordToDelete = id;
+            showModal(deleteModal);
+        }
+
+        // Confirm delete action
+        function confirmDelete() {
+            if (recordToDelete) {
+                reportsData = reportsData.filter(r => r.id !== recordToDelete);
+                localStorage.setItem('attendanceReports', JSON.stringify(reportsData));
+                renderReportsTable();
+                hideModal(deleteModal);
+                showSuccessModal('Attendance record deleted successfully!');
+                recordToDelete = null;
+            }
+        }
+
+        // Render pagination controls
+        function renderPagination(totalPages) {
+            reportsPagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${i === currentReportPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.addEventListener('click', () => {
+                    currentReportPage = i;
+                    renderReportsTable();
+                });
+                
+                reportsPagination.appendChild(btn);
+            }
+        }
+
+        // Download report as PDF with improved error handling
+        function downloadReport(id) {
+            const report = reportsData.find(r => r.id === id);
+            if (!report) {
+                showSuccessModal('Report not found');
+                return;
+            }
+
+            try {
+                // Check if jsPDF is available
+                if (typeof window.jspdf === 'undefined') {
+                    throw new Error('jsPDF library not loaded');
+                }
+
+                // Use jsPDF with autoTable plugin
+                const { jsPDF } = window.jspdf;
+                
+                if (!jsPDF) {
+                    throw new Error('jsPDF constructor not available');
+                }
+                
+                const doc = new jsPDF();
+
+                // Add header
+                doc.setFontSize(18);
+                doc.setTextColor(40, 40, 40);
+                doc.text('B.N. COLLEGE (AUTONOMOUS)', 105, 15, { align: 'center' });
+                doc.setFontSize(14);
+                doc.text('BCA Department - Attendance Record', 105, 22, { align: 'center' });
+
+                // Add details
+                doc.setFontSize(12);
+                doc.text(`Semester: ${report.semester}`, 20, 35);
+                doc.text(`Subject: ${report.subject}`, 20, 42);
+                doc.text(`Date: ${report.date}`, 20, 49);
+                if (report.topic) {
+                    doc.text(`Topic: ${report.topic}`, 20, 56);
+                }
+
+                // Prepare data for the table
+                const tableData = [];
+                Object.entries(report.students).forEach(([id, student]) => {
+                    if (student.present !== null) {
+                        tableData.push([
+                            id,
+                            student.name,
+                            student.present ? 'Present' : 'Absent'
+                        ]);
+                    }
+                });
+
+                // Check if autoTable is available
+                if (typeof doc.autoTable !== 'function') {
+                    throw new Error('autoTable plugin not loaded');
+                }
+
+                // Add table
+                doc.autoTable({
+                    startY: 65,
+                    head: [['Roll No', 'Student Name', 'Status']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [52, 152, 219],
+                        textColor: 255
+                    },
+                    alternateRowStyles: {
+                        fillColor: [240, 240, 240]
+                    }
+                });
+
+                // Add statistics
+                const presentCount = report.presentCount;
+                const totalCount = Object.values(report.students).filter(s => s.present !== null).length;
+                const finalY = doc.lastAutoTable.finalY + 10;
+                
+                doc.text(`Summary: ${presentCount} Present, ${totalCount - presentCount} Absent out of ${totalCount} students`, 20, finalY);
+
+                // Generate filename
+                const filename = `attendance_${report.semester}_${report.subject.replace(/\s+/g, '_')}_${report.date}.pdf`;
+                
+                // Save the PDF
+                doc.save(filename);
+                
+                showSuccessModal('PDF downloaded successfully!');
+                
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                showSuccessModal(`PDF generation failed: ${error.message}. Please refresh the page and try again.`);
+            }
+        }
+
+        // Edit report
+        function editReport(id) {
+            const report = reportsData.find(r => r.id === id);
+            if (report) {
+                // Load the report data into the form
+                semesterSelect.value = report.semester;
+                handleSemesterChange({target: {value: report.semester}});
+                
+                // Wait for subjects to populate
+                setTimeout(() => {
+                    subjectSelect.value = report.subject;
+                    attendanceState.subject = report.subject;
+                    
+                    document.getElementById('attendance-date').value = report.date;
+                    attendanceState.date = report.date;
+                    
+                    document.getElementById('topic').value = report.topic || '';
+                    attendanceState.topic = report.topic || '';
+                    
+                    // Load student attendance
+                    attendanceState.students = {...report.students};
+                    
+                    // Update UI to reflect attendance status
+                    Object.entries(report.students).forEach(([studentId, student]) => {
+                        const presentBtn = document.querySelector(`.present-btn[data-student="${studentId}"]`);
+                        const absentBtn = document.querySelector(`.absent-btn[data-student="${studentId}"]`);
+                        
+                        if (presentBtn && absentBtn) {
+                            if (student.present === true) {
+                                presentBtn.classList.add('active');
+                                absentBtn.classList.remove('active');
+                            } else if (student.present === false) {
+                                absentBtn.classList.add('active');
+                                presentBtn.classList.remove('active');
+                            }
+                        }
+                    });
+                    
+                    updateStats();
+                    
+                    // Remove the report from the list
+                    reportsData = reportsData.filter(r => r.id !== id);
+                    localStorage.setItem('attendanceReports', JSON.stringify(reportsData));
+                    
+                    // Hide reports section
+                    hideReports();
+                    
+                    showSuccessModal('Attendance record loaded for editing. Please review and save again.');
+                }, 100);
+            }
+        }
+
+        // Confirm reset action
+        function confirmReset() {
+            hideModal(resetModal);
+            
+            semesterSelect.value = '';
+            subjectSelect.innerHTML = '<option value="">-- Select Subject --</option>';
+            document.getElementById('attendance-date').value = '';
+            document.getElementById('topic').value = '';
+            studentList.innerHTML = '';
+            
+            attendanceState = {
+                semester: '',
+                subject: '',
+                date: '',
+                topic: '',
+                students: {}
+            };
+            
+            updateStats();
+            
+            // Set default date as today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendance-date').value = today;
+            attendanceState.date = today;
+            
+            showSuccessModal('Form has been reset successfully!');
+        }
+
+        // Make functions available globally for onclick handlers
+        window.downloadReport = downloadReport;
+        window.editReport = editReport;
+        window.showDeleteModal = showDeleteModal;
+
+        // Initialize the form when the page loads
+        window.addEventListener('DOMContentLoaded', initForm);
+        
+        // Additional check for library loading after page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!checkLibrariesLoaded()) {
+                    console.error('Libraries still not loaded after page load');
+                    generatePdfBtn.disabled = true;
+                    generatePdfBtn.title = 'PDF library failed to load. Please refresh the page.';
+                } else {
+                    generatePdfBtn.disabled = false;
+                    generatePdfBtn.title = '';
+                    console.log('PDF libraries loaded successfully');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
